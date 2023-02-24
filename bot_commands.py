@@ -26,9 +26,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('<b>Что я умею:</b>\
         \n------------------------------\
         \n/hello\
-        \n/fun\
+        \n/weather\
         \n/new_year\
-        \n/phrase', parse_mode='HTML')
+        \n/phrase\
+        \n/sum', parse_mode='HTML')
 
 # Hello, {User}
 async def hello_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

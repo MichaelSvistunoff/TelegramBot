@@ -9,6 +9,7 @@ app = ApplicationBuilder().token("6074794536:AAHRIBLQJXRGGBs1txKMXkQMCRxM99MSM3o
 app.add_handler(CommandHandler("help", help_command))
 app.add_handler(CommandHandler("hello", hello_command))
 app.add_handler(conv_handler)
+app.add_handler(sum_conv_handler)
 app.add_handler(CommandHandler("new_year", days_to_new_year))
 app.add_handler(CommandHandler("phrase", random_phrase))
 

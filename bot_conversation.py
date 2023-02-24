@@ -25,7 +25,7 @@ def facts_to_str(user_data: Dict[str, str]) -> str:
     return "\n".join(facts).join(["\n", "\n"])
 
 #Начало диалога
-async def fun(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def weather(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text(
         f'{emoji.emojize(":keyboard:")} Напиши название любого города, о погоде в котором ты бы хотел узнать больше'
     )
@@ -116,7 +116,65 @@ async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 #Обработчик диалога
 conv_handler = ConversationHandler(
-    entry_points=[CommandHandler("fun", fun)],
+    entry_points=[CommandHandler("weather", weather)],
+    states={
+        TYPING_CHOICE: [
+            MessageHandler(
+                filters.TEXT & ~(filters.COMMAND | filters.Regex("^Готово$")), regular_choice
+            )
+        ],
+        TYPING_REPLY: [
+            MessageHandler(
+                filters.TEXT & ~(filters.COMMAND | filters.Regex("^Готово$")),
+                received_information,
+            )
+        ],
+    },
+    fallbacks=[MessageHandler(filters.Regex("^Готово$"), done)],
+)
+
+# Sum function 
+def calc_run(usrerexp):
+    return eval(usrerexp)
+
+#Начало диалога
+async def sum(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    await update.message.reply_text(
+        f'{emoji.emojize(":keyboard:")} Напиши выражение, которое бы ты хотел посчитать (к примеру, 5 + 5)'
+    )
+
+    return TYPING_CHOICE
+
+#Получение результата
+async def regular_choice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:  
+    phrase_to_calc = update.message.text
+    context.user_data["choice"] = phrase_to_calc
+    
+    await update.message.reply_text(f'Результат выражения:\
+                \n------------------------------\
+                \n{calc_run(phrase_to_calc)}\
+                \n------------------------------\
+                \nДля выхода из режима просмотра введи <b>Готово</b> и отправь', parse_mode='HTML')
+    
+    return TYPING_REPLY
+
+#Завершение диалога
+async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    user_data = context.user_data
+    if "choice" in user_data:
+        del user_data["choice"]
+
+    await update.message.reply_text(
+        f'{emoji.emojize(":red_heart:")} Спасибо за проявленный интерес!\nДо скорых встреч!',
+        reply_markup=ReplyKeyboardRemove(),
+    )
+
+    user_data.clear()
+    return ConversationHandler.END
+
+#Обработчик диалога
+sum_conv_handler = ConversationHandler(
+    entry_points=[CommandHandler("sum", sum)],
     states={
         TYPING_CHOICE: [
             MessageHandler(
